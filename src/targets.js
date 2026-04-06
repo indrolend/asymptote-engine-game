@@ -36,8 +36,8 @@ export function spawnTarget() {
   const padX = 50, padY = 50;
   const maxX = (areaRect.width || 600) - padX;
   const maxY = (areaRect.height || 400) - padY;
-  target.style.left = Math.max(5, Math.floor(Math.random() * maxX)) + 'px';
-  target.style.top = Math.max(5, Math.floor(Math.random() * maxY)) + 'px';
+  target.style.left = Math.max(padX, Math.floor(Math.random() * maxX)) + 'px';
+  target.style.top = Math.max(padY, Math.floor(Math.random() * maxY)) + 'px';
 
   // Lifetime adjusted by time multiplier
   const lifetime = gameState.targetLifetime * gameState.timeMultiplier;

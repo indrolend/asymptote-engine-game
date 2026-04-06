@@ -133,10 +133,7 @@ function startSubstanceTick(name, onExpire) {
       onExpire();
       return;
     }
-    // Tick down: weed makes time pass faster so it ticks faster
-    let tick = 1;
-    if (name === 'weed' && gameState.modifiers.weed > 0) tick = 1; // normal
-    gameState.modifiers[name] -= tick;
+    gameState.modifiers[name] -= 1;
     updateUI();
   }, 1000);
 }

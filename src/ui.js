@@ -143,11 +143,20 @@ function renderUpgradeButtons() {
       container.appendChild(btn);
     }
 
+    let costDisplay;
+    if (maxed) {
+      costDisplay = 'MAX';
+    } else if (gameState.modifiers.alcohol > 0) {
+      costDisplay = `<s>${cost}</s> ${discounted} 🧠`;
+    } else {
+      costDisplay = `${discounted} 🧠`;
+    }
+
     btn.className = 'upgrade-btn' + (canAfford ? ' affordable' : '') + (maxed ? ' maxed' : '');
     btn.innerHTML = `
       <span class="upgrade-name">${upgrade.name}</span>
       <span class="upgrade-desc">${upgrade.description}</span>
-      <span class="upgrade-cost">${maxed ? 'MAX' : (gameState.modifiers.alcohol > 0 ? `<s>${cost}</s> ${discounted}` : discounted) + ' 🧠'}</span>
+      <span class="upgrade-cost">${costDisplay}</span>
       <span class="upgrade-level">Lv ${level}/${upgrade.maxLevel}</span>
     `;
     btn.disabled = maxed || !gameState.gameRunning;

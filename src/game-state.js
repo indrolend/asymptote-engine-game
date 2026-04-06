@@ -92,8 +92,8 @@ export function getEffectiveFactDuration() {
 export function applyPassiveTick() {
   if (!gameState.gameRunning) return;
   let rate = gameState.passiveRate;
-  // Adderall boosts passive too
-  if (gameState.modifiers.adderall > 0) rate *= 1.5;
+  // Adderall boosts passive too (matches the 2x multiplier applied on purchase)
+  if (gameState.modifiers.adderall > 0) rate *= 2.0;
   gameState.distance = Math.max(0.000001, gameState.distance - rate);
 }
 
