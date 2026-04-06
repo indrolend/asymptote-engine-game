@@ -17,6 +17,7 @@ const _CYCLE_MS = 4000;
 const _SEQ_MS   = 2600;
 const _HOLD_MS  = 3200;
 const _RANGE    = 3.5;
+const _BG_OPACITY_SCALE = 0.28; // keep background dots subtle so targets stay readable
 
 // Pre-compute Q2 curve points: x ∈ [−3.2, −0.3], y = −1/x
 const _ANIM_DOTS = (function () {
@@ -68,7 +69,7 @@ function _drawEngineBg(ctx, cssW, cssH, wallMs) {
     if (opacity <= 0.01) continue;
 
     // Scale opacity down so dots don't overwhelm the game area
-    const a = opacity * 0.28;
+    const a = opacity * _BG_OPACITY_SCALE;
     const px = canX(_ANIM_DOTS[i].cx);
     const py = canY(_ANIM_DOTS[i].cy);
     if (py < -_GLOW_R || py > cssH + _GLOW_R || px < -_GLOW_R || px > cssW + _GLOW_R) continue;

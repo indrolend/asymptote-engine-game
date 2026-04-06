@@ -497,7 +497,7 @@ body.alcohol-active {
 #fact-close-btn {
   background: var(--color-accent);
   border: none;
-  color: #111;
+  color: var(--color-bg);
   padding: 8px 20px;
   border-radius: var(--radius);
   cursor: pointer;
