@@ -1,0 +1,953 @@
+/* style.css — Asymptote Engine Game
+ * Canonical stylesheet.
+ *
+ * Design system ported and adapted from indrolend/basic-browser-spa (style.css).
+ * All `.spa-` and `.asy-` prefixes have been removed/remapped to match this
+ * repo's standalone DOM structure. Game-specific mechanics CSS is preserved.
+ */
+
+/* ─── CSS Variables ─────────────────────────────────────────────── */
+:root {
+  /* Core palette */
+  --color-bg: #111;
+  --color-surface: #1a1a1a;
+  --color-surface-2: #222;
+  --color-border: #2f2f2f;
+  --color-accent: #5ee87d;
+  --color-accent-dim: #2d8f4a;
+  --color-text: #f0f0f0;
+  --color-text-muted: #777;
+
+  /* Aliases matching SPA short names (for design-system portability) */
+  --bg: var(--color-bg);
+  --fg: var(--color-text);
+  --accent: var(--color-accent);
+  --panel: var(--color-surface-2);
+  --panel-active: #333;
+
+  /* Gameplay colours */
+  --color-target: #5ee87d;
+  --color-target-glow: rgba(94, 232, 125, 0.55);
+  --color-reward: #ffd700;
+  --color-pseudo: #8ef4a8;
+  --color-bar-early: #2d6e40;
+  --color-bar-mid: #5ee87d;
+  --color-bar-late: #8ef4a8;
+  --color-bar-max: #c0ffd4;
+  --color-danger: #ff4466;
+  --color-weed: #4ade80;
+  --color-adderall: #60a5fa;
+  --color-alcohol: #f59e0b;
+
+  /* Typography */
+  --font-main: 'SF Mono', Menlo, Monaco, Consolas, monospace;
+  --font-mono: 'SF Mono', Menlo, Monaco, Consolas, monospace;
+
+  /* Shared tokens */
+  --radius: 8px;
+  --shadow: 0 4px 24px rgba(0,0,0,0.6);
+}
+
+/* ─── Base Reset ────────────────────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  /* Prevent double-tap zoom and improve tap responsiveness on mobile */
+  touch-action: manipulation;
+}
+
+body {
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-main);
+  min-height: 100vh;
+  min-height: 100svh; /* small-viewport-height for mobile browsers */
+  display: flex;
+  flex-direction: column;
+  transition: filter 0.3s ease, background 0.4s ease;
+}
+
+/* ─── Substance Visual Effects ──────────────────────────────────── */
+body.weed-active {
+  filter: hue-rotate(60deg) saturate(1.4);
+  animation: weed-pulse 3s ease-in-out infinite;
+}
+body.adderall-active {
+  filter: contrast(1.15) brightness(1.1);
+  animation: adderall-sharpen 2s ease-in-out infinite;
+}
+body.alcohol-active {
+  animation: alcohol-wobble 0.8s ease-in-out infinite;
+}
+
+@keyframes weed-pulse {
+  0%, 100% { filter: hue-rotate(60deg) saturate(1.4); }
+  50% { filter: hue-rotate(110deg) saturate(1.7) brightness(1.05); }
+}
+@keyframes adderall-sharpen {
+  0%, 100% { filter: contrast(1.15) brightness(1.1); }
+  50% { filter: contrast(1.25) brightness(1.15) saturate(1.1); }
+}
+@keyframes alcohol-wobble {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(0.5deg); }
+  75% { transform: rotate(-0.5deg); }
+}
+
+/* ─── Layout ────────────────────────────────────────────────────── */
+#app {
+  display: grid;
+  grid-template-rows: auto auto 1fr;
+  grid-template-columns: 1fr 320px;
+  grid-template-areas:
+    "header  header"
+    "effects effects"
+    "game    sidebar";
+  min-height: 100vh;
+  min-height: 100svh;
+  gap: 0;
+}
+
+/* ─── Header ────────────────────────────────────────────────────── */
+#header {
+  grid-area: header;
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
+  padding: 10px 20px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+#header h1 {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--color-accent);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.stat-chip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--color-surface-2);
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  padding: 4px 12px;
+  font-size: 0.88rem;
+}
+.stat-chip .label {
+  color: var(--color-text-muted);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.stat-chip .value {
+  font-weight: 700;
+  color: var(--color-text);
+}
+.stat-chip.pseudo-chip {
+  border-color: var(--color-pseudo);
+}
+.stat-chip.pseudo-chip .value {
+  color: var(--color-pseudo);
+}
+
+/* Progress bar */
+.progress-container {
+  flex: 1;
+  min-width: 160px;
+}
+.progress-label {
+  font-size: 0.68rem;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 4px;
+  display: flex;
+  justify-content: space-between;
+}
+.progress-bar {
+  height: 6px;
+  background: var(--color-surface-2);
+  border-radius: 3px;
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+}
+#progress-bar-fill {
+  height: 100%;
+  width: 0%;
+  background: var(--color-bar-early);
+  border-radius: 3px;
+  transition: width 0.5s ease, background 0.5s ease;
+}
+
+/* ─── Active Effects Bar ────────────────────────────────────────── */
+#active-effects-bar {
+  grid-area: effects;
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
+  padding: 6px 24px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 38px;
+}
+
+#active-effects {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.active-effect-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--color-surface-2);
+  border: 1px solid var(--color-accent);
+  border-radius: 20px;
+  padding: 3px 12px;
+  font-size: 0.82rem;
+  animation: badge-in 0.3s ease;
+}
+.active-effect-badge.fading {
+  animation: badge-out 0.3s ease forwards;
+}
+.effect-label { color: var(--color-text); }
+.effect-timer { color: var(--color-accent); font-family: var(--font-mono); font-weight: 700; }
+
+@keyframes badge-in {
+  from { opacity: 0; transform: scale(0.8); }
+  to { opacity: 1; transform: scale(1); }
+}
+@keyframes badge-out {
+  from { opacity: 1; transform: scale(1); }
+  to { opacity: 0; transform: scale(0.8); }
+}
+
+/* ─── Game Area ─────────────────────────────────────────────────── */
+#game-area {
+  grid-area: game;
+  position: relative;
+  /* Improved radial gradient from SPA design system */
+  background: radial-gradient(ellipse 80% 70% at 50% 45%, #1a241c 0%, #111 100%);
+  overflow: hidden;
+  cursor: default;
+  min-height: 400px;
+}
+
+/* Engine background canvas — drawn by main.js; sits behind all targets */
+#engine-bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ─── Targets ───────────────────────────────────────────────────── */
+.target {
+  position: absolute;
+  width: 44px;
+  height: 44px;
+  background: radial-gradient(circle at 35% 35%, #8ef4a8, var(--color-accent));
+  border: 2px solid rgba(255,255,255,0.25);
+  border-radius: 50%;
+  cursor: pointer;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 0 20px var(--color-target-glow), 0 0 4px rgba(255,255,255,0.15);
+  animation: target-spawn 0.2s ease-out, target-lifetime linear forwards;
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+  user-select: none;
+  will-change: transform, opacity;
+  z-index: 1;
+}
+
+.target:hover {
+  transform: translate(-50%, -50%) scale(1.18);
+  box-shadow: 0 0 32px var(--color-target-glow), 0 0 8px rgba(255,255,255,0.3);
+}
+
+@keyframes target-lifetime {
+  0%   { opacity: 1; }
+  70%  { opacity: 0.9; }
+  100% { opacity: 0.1; transform: translate(-50%, -50%) scale(0.7); }
+}
+
+@keyframes target-spawn {
+  from { opacity: 0; transform: translate(-50%, -50%) scale(0.3); }
+  to   { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+}
+
+.target.clicked {
+  animation: target-click 0.2s ease forwards;
+  pointer-events: none;
+}
+@keyframes target-click {
+  0%   { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+  50%  { transform: translate(-50%, -50%) scale(1.4); opacity: 0.6; }
+  100% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+}
+
+.target.expired {
+  animation: target-expire 0.4s ease forwards;
+  pointer-events: none;
+}
+@keyframes target-expire {
+  0%   { opacity: 0.5; transform: translate(-50%, -50%) scale(1); }
+  100% { opacity: 0; transform: translate(-50%, -50%) scale(0.3); filter: grayscale(1); }
+}
+
+/* ─── Floating Reward Text ──────────────────────────────────────── */
+.floating-reward {
+  position: absolute;
+  color: var(--color-reward);
+  font-weight: 700;
+  font-size: 1rem;
+  font-family: var(--font-mono);
+  pointer-events: none;
+  transform: translate(-50%, -100%);
+  animation: float-up 1s ease forwards;
+  text-shadow: 0 0 8px rgba(255, 215, 0, 0.7);
+  z-index: 10;
+  white-space: nowrap;
+}
+@keyframes float-up {
+  0%   { opacity: 1; transform: translate(-50%, -100%); }
+  80%  { opacity: 0.9; }
+  100% { opacity: 0; transform: translate(-50%, -260%); }
+}
+
+/* ─── Hint Message ──────────────────────────────────────────────── */
+.hint-message {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: var(--color-text-muted);
+  font-size: 0.88rem;
+  pointer-events: none;
+  transition: opacity 1s ease;
+  z-index: 5;
+}
+.hint-message.fade-out { opacity: 0; }
+
+/* ─── Sidebar ───────────────────────────────────────────────────── */
+#sidebar {
+  grid-area: sidebar;
+  background: var(--color-surface);
+  border-left: 1px solid var(--color-border);
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+
+.sidebar-section {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--color-border);
+}
+.sidebar-section:last-child { border-bottom: none; }
+
+.section-title {
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  margin-bottom: 10px;
+}
+
+/* ─── Upgrade Buttons ───────────────────────────────────────────── */
+.upgrade-btn {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-rows: auto auto;
+  gap: 2px 8px;
+  width: 100%;
+  padding: 10px 12px;
+  margin-bottom: 6px;
+  background: var(--color-surface-2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  color: var(--color-text);
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s, transform 0.1s;
+  font-family: var(--font-main);
+  font-size: 0.82rem;
+}
+.upgrade-btn:last-child { margin-bottom: 0; }
+
+.upgrade-btn:hover:not(:disabled) {
+  border-color: var(--color-accent);
+  background: rgba(94, 232, 125, 0.08);
+  transform: translateY(-1px);
+}
+.upgrade-btn:active:not(:disabled) {
+  transform: translateY(0);
+}
+.upgrade-btn.affordable {
+  border-color: rgba(94, 232, 125, 0.5);
+}
+.upgrade-btn.maxed {
+  opacity: 0.45;
+  cursor: default;
+}
+.upgrade-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.upgrade-btn.active-substance {
+  border-color: var(--color-accent);
+  background: rgba(94, 232, 125, 0.1);
+}
+.upgrade-btn.alcohol-only {
+  border-color: var(--color-alcohol);
+}
+.upgrade-btn.alcohol-only:hover:not(:disabled) {
+  background: rgba(245, 158, 11, 0.12);
+}
+
+.upgrade-name {
+  grid-column: 1;
+  grid-row: 1;
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+.upgrade-desc {
+  grid-column: 1 / 3;
+  grid-row: 2;
+  color: var(--color-text-muted);
+  font-size: 0.72rem;
+  line-height: 1.4;
+}
+.upgrade-cost {
+  grid-column: 2;
+  grid-row: 1;
+  color: var(--color-text-muted);
+  font-size: 0.78rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.upgrade-level {
+  display: none;
+}
+.upgrade-btn.affordable .upgrade-cost {
+  color: var(--color-accent);
+}
+
+/* Stats small text */
+#stats-display {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.78rem;
+  color: var(--color-text-muted);
+  font-family: var(--font-mono);
+}
+
+/* ─── Fact Popup Overlay ─────────────────────────────────────────── */
+.fact-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.88);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: overlay-in 0.3s ease;
+}
+@keyframes overlay-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.fact-modal {
+  background: var(--color-surface);
+  border: 1px solid var(--color-accent);
+  border-radius: 12px;
+  padding: 28px 32px;
+  max-width: 480px;
+  width: 90%;
+  box-shadow: 0 0 48px rgba(94, 232, 125, 0.25), var(--shadow);
+  animation: modal-in 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+@keyframes modal-in {
+  from { opacity: 0; transform: scale(0.8) translateY(20px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.fact-header {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--color-accent);
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  margin-bottom: 18px;
+  text-align: center;
+}
+
+.fact-body {
+  font-size: 1rem;
+  line-height: 1.65;
+  color: var(--color-text);
+  text-align: center;
+  margin-bottom: 22px;
+  padding: 14px 16px;
+  background: var(--color-surface-2);
+  border-radius: var(--radius);
+  border: 1px solid var(--color-border);
+  font-style: italic;
+}
+
+.fact-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.fact-note {
+  font-size: 0.72rem;
+  color: var(--color-text-muted);
+}
+
+#fact-close-btn {
+  background: var(--color-accent);
+  border: none;
+  color: var(--color-bg);
+  padding: 8px 20px;
+  border-radius: var(--radius);
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 0.85rem;
+  transition: background 0.2s, opacity 0.2s;
+  font-family: var(--font-main);
+}
+#fact-close-btn:disabled {
+  background: var(--color-surface-2);
+  color: var(--color-text-muted);
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+#fact-close-btn:not(:disabled):hover {
+  background: var(--color-accent-dim);
+  color: #fff;
+}
+
+/* ─── Wear Off Message ───────────────────────────────────────────── */
+.wear-off-message {
+  position: fixed;
+  top: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--color-surface);
+  border: 1px solid var(--color-danger);
+  border-radius: var(--radius);
+  padding: 10px 20px;
+  font-size: 0.88rem;
+  color: var(--color-text);
+  z-index: 500;
+  max-width: 500px;
+  text-align: center;
+  animation: wear-off-anim 4s ease forwards;
+  box-shadow: 0 0 20px rgba(255, 68, 102, 0.3);
+}
+@keyframes wear-off-anim {
+  0%   { opacity: 0; transform: translateX(-50%) translateY(-10px); }
+  15%  { opacity: 1; transform: translateX(-50%) translateY(0); }
+  80%  { opacity: 1; }
+  100% { opacity: 0; transform: translateX(-50%) translateY(-5px); }
+}
+
+/* ─── Scrollbar ─────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--color-bg); }
+::-webkit-scrollbar-thumb { background: var(--color-border); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--color-accent-dim); }
+
+/* ═══════════════════════════════════════════════════════════════════
+   DESIGN SYSTEM — Ported from indrolend/basic-browser-spa
+   Classes below are adapted for this standalone repo's structure.
+   `.spa-` and `.asy-` prefixes have been removed.
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* ─── Navigation Buttons ────────────────────────────────────────── */
+/* Reusable action/nav button — replaces .spa-nav-btn */
+.nav-btn {
+  background: var(--panel);
+  color: var(--accent);
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  padding: 0.75rem 1rem;
+  margin: 0;
+  min-height: 44px;
+  min-width: 44px;
+  font-size: 1rem;
+  line-height: 1.2;
+  cursor: pointer;
+  touch-action: manipulation;
+  font-family: var(--font-main);
+  transition: background 0.2s;
+}
+
+.nav-btn:hover,
+.nav-btn:active {
+  background: var(--panel-active);
+}
+
+.nav-btn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* Exit/back button variant — slightly dimmed to distinguish from primary actions */
+.exit-btn {
+  opacity: 0.65;
+}
+.exit-btn:hover,
+.exit-btn:active {
+  opacity: 1;
+}
+
+/* ─── Navigation Dots ───────────────────────────────────────────── */
+/* Dot indicator row — replaces #spa-dots / .spa-dot */
+.nav-dots {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.45rem;
+  margin: 0.6rem 0 0;
+  min-height: 12px;
+}
+
+.nav-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #444;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: background 0.2s, transform 0.2s;
+  flex-shrink: 0;
+}
+
+.nav-dot[aria-selected="true"],
+.nav-dot.active {
+  background: var(--accent);
+  transform: scale(1.35);
+}
+
+/* ─── Hero Containers ───────────────────────────────────────────── */
+/* General hero — centred display area, replaces .spa-hero */
+.hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: min(100%, 38rem);
+  min-height: 320px;
+  text-align: center;
+  cursor: grab;
+}
+
+.hero:active {
+  cursor: grabbing;
+}
+
+.hero--linkable {
+  cursor: pointer;
+}
+
+.hero--linkable:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 6px;
+  border-radius: 16px;
+}
+
+/* Text-type hero rendered as a styled panel — replaces .spa-hero--text */
+.hero--text {
+  background: var(--panel);
+  border: 2px solid var(--color-border);
+  border-radius: 12px;
+  padding: 2rem 2.5rem;
+  min-height: unset;
+  box-shadow: 0 2px 20px #0005;
+  transition: background 0.15s, border-color 0.15s;
+  user-select: none;
+  touch-action: manipulation;
+}
+
+.hero--text:hover {
+  background: var(--panel-active);
+  border-color: var(--accent);
+}
+
+/* Hero heading text — replaces .spa-hero-text */
+.hero-text {
+  font-size: clamp(1.8rem, 5vw, 2.5rem);
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin: 1.25rem 0;
+  text-align: center;
+}
+
+/* Hero sub-description — replaces .spa-hero-subtext */
+.hero-subtext {
+  font-size: clamp(0.75rem, 2.5vw, 0.9rem);
+  color: #666;
+  letter-spacing: 0.03em;
+  line-height: 1.5;
+  max-width: 32rem;
+  text-align: center;
+  margin: 0.5rem 0 0;
+  padding: 0 1rem;
+}
+
+/* Dim state — replaces .asy-hero--dim */
+.hero--dim .hero-text,
+.hero--dim .hero-stat,
+.hero--dim .hero-action {
+  opacity: 0.38;
+}
+.hero--dim .motif {
+  opacity: 0.45;
+  filter: grayscale(0.4);
+}
+.hero--dim .core-dot {
+  opacity: 0.45;
+  filter: grayscale(0.35);
+  box-shadow: 0 0 12px rgba(94, 232, 125, 0.15);
+}
+
+/* ─── Stats Bar ─────────────────────────────────────────────────── */
+/* Compact full-width stats row (typically inside the header or nav bar).
+   Replaces .asy-stats-bar — works alongside the existing .stat-chip rows. */
+.stats-bar {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  gap: 1.25rem;
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+  color: #aaa;
+  padding-bottom: 0.2rem;
+}
+
+.stats-bar-stat {
+  display: flex;
+  align-items: baseline;
+  gap: 0.3em;
+}
+
+.stats-bar-label {
+  color: #555;
+}
+
+/* ─── Engine Hero ───────────────────────────────────────────────── */
+/* Primary engine display container — replaces .asy-engine-hero.
+   Can be applied to any element that wraps the engine canvas/dot. */
+.engine-hero {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: min(52vh, 360px);
+  width: 100%;
+  max-width: 38rem;
+  margin: 0 auto;
+  border-radius: 16px;
+  border: 1px solid #2a3a2f;
+  background: radial-gradient(ellipse 80% 70% at 50% 45%, #1a241c 0%, #0f0f0f 100%);
+  box-shadow: inset 0 0 60px rgba(94, 232, 125, 0.04);
+  overflow: hidden;
+  cursor: default;
+}
+
+/* Canvas layer within the engine hero — replaces .asy-engine-bg */
+.engine-bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* Primary clickable core — replaces .asy-core-dot */
+.core-dot {
+  position: relative;
+  z-index: 2;
+  width: min(22vw, 88px);
+  height: min(22vw, 88px);
+  min-width: 64px;
+  min-height: 64px;
+  border-radius: 50%;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  touch-action: manipulation;
+  background: radial-gradient(circle at 35% 30%, #8ef4a8 0%, #5ee87d 38%, #2d8f4a 100%);
+  box-shadow:
+    0 0 28px rgba(94, 232, 125, 0.55),
+    0 0 60px rgba(94, 232, 125, 0.2),
+    inset 0 2px 12px rgba(255, 255, 255, 0.35);
+  transition: transform 0.08s ease-out, box-shadow 0.15s ease;
+}
+
+.core-dot:active {
+  transform: scale(0.94);
+  box-shadow:
+    0 0 40px rgba(94, 232, 125, 0.75),
+    inset 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Decorative asymptote label beneath the core dot — replaces .asy-engine-hint */
+.engine-hint {
+  position: relative;
+  z-index: 1;
+  margin-top: 0.85rem;
+  font-size: clamp(1.4rem, 4vw, 2rem);
+  color: rgba(94, 232, 125, 0.45);
+  letter-spacing: 0.12em;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* ─── Item Cards / Item Heroes ──────────────────────────────────── */
+/* Card container for generator/upgrade items — replaces .asy-item-hero */
+.item-hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  width: 100%;
+  max-width: 38rem;
+  margin: 0 auto;
+  min-height: 220px;
+  padding: 1rem 1.25rem 1.5rem;
+  border-radius: 14px;
+  border: 1px solid var(--color-border);
+  background: linear-gradient(165deg, #1a1a1a 0%, #121212 100%);
+}
+
+/* Pixel-art motif canvas for item cards — replaces .asy-motif */
+.motif {
+  display: block;
+  width: 112px;
+  height: 112px;
+  image-rendering: pixelated;
+  border-radius: 12px;
+  background: #0a0a0a;
+  box-shadow: inset 0 0 24px rgba(94, 232, 125, 0.06);
+}
+
+/* Prominent stat number inside a hero card — replaces .asy-hero-stat */
+.hero-stat {
+  margin: 0 !important;
+  font-size: clamp(1.1rem, 3.2vw, 1.35rem) !important;
+  letter-spacing: 0.06em !important;
+  color: var(--accent) !important;
+}
+
+/* Small circular action button inside a hero card — replaces .asy-hero-action */
+.hero-action {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  border: 2px solid #3a5c42;
+  background: #1e2a22;
+  color: var(--accent);
+  font-size: 1.1rem;
+  cursor: pointer;
+  touch-action: manipulation;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.12s ease, border-color 0.12s ease, transform 0.08s ease;
+}
+
+.hero-action:active {
+  transform: scale(0.94);
+  background: #253028;
+}
+
+/* Hero images */
+.hero-image,
+.hero-gif {
+  width: min(80vw, 320px);
+  height: auto;
+  max-height: 60vh;
+  border-radius: 16px;
+}
+
+.hero-image {
+  background: var(--panel);
+  box-shadow: 0 4px 32px #000a;
+}
+
+/* ─── Transition Canvas ─────────────────────────────────────────── */
+/* Full-page canvas used by particleTransitionEngine when ported */
+#transition-canvas {
+  display: none;
+  position: absolute;
+  transform: translate(-50%, -50%);
+}
+
+/* ─── Responsive ─────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .nav-btn {
+    flex: 1 1 auto;
+    padding: 0.85rem 0.9rem;
+  }
+
+  .hero {
+    min-height: 240px;
+  }
+
+  .hero--text {
+    padding: 1.5rem 1.75rem;
+    border-radius: 10px;
+  }
+
+  .hero-image,
+  .hero-gif {
+    width: min(86vw, 320px);
+    max-height: 50vh;
+  }
+
+  .stats-bar {
+    gap: 0.75rem;
+    font-size: 0.68rem;
+  }
+}
+
+@media (max-width: 700px) {
+  #app {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "header"
+      "effects"
+      "game"
+      "sidebar";
+  }
+  #sidebar {
+    border-left: none;
+    border-top: 1px solid var(--color-border);
+  }
+  #game-area { min-height: 300px; }
+}
