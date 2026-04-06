@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Asymptote Engine</title>
+  <link rel="stylesheet" href="styles/animations.css" />
+</head>
+<body>
+  <div id="app">
+
+    <!-- ── Header / Stats Bar ── -->
+    <header id="header">
+      <h1>⟿ Asymptote Engine</h1>
+
+      <div class="progress-container">
+        <div class="progress-label">
+          <span>Approaching Understanding</span>
+          <span id="distance-counter" style="font-family:monospace;font-weight:700;">100.00</span>
+        </div>
+        <div class="progress-bar">
+          <div id="progress-bar-fill"></div>
+        </div>
+      </div>
+
+      <div class="stat-chip">
+        <span class="label">🧠 Understanding</span>
+        <span class="value" id="understanding-counter">0</span>
+      </div>
+
+      <div class="stat-chip pseudo-chip" style="display:none">
+        <span class="label">🌿 Pseudo</span>
+        <span class="value" id="pseudo-counter">0</span>
+      </div>
+    </header>
+
+    <!-- ── Active Effects Bar ── -->
+    <div id="active-effects-bar">
+      <span style="font-size:0.72rem;color:var(--color-text-muted);text-transform:uppercase;letter-spacing:0.08em;white-space:nowrap;">Active:</span>
+      <div id="active-effects"></div>
+    </div>
+
+    <!-- ── Main Game Area ── -->
+    <main id="game-area"></main>
+
+    <!-- ── Sidebar ── -->
+    <aside id="sidebar">
+
+      <!-- Stats -->
+      <div class="sidebar-section">
+        <div class="section-title">Session Stats</div>
+        <div id="stats-display"></div>
+      </div>
+
+      <!-- Regular Upgrades -->
+      <div class="sidebar-section">
+        <div class="section-title">Upgrades</div>
+        <div id="upgrades-list"></div>
+      </div>
+
+      <!-- Substances & Consumables -->
+      <div class="sidebar-section">
+        <div class="section-title">Substances &amp; Consumables</div>
+        <div id="consumables-list"></div>
+      </div>
+
+    </aside>
+
+  </div>
+
+  <script type="module" src="main.js"></script>
+</body>
+</html>
