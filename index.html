@@ -16,7 +16,7 @@
       <div class="progress-container">
         <div class="progress-label">
           <span>Approaching Understanding</span>
-          <span id="distance-counter" style="font-family:monospace;font-weight:700;">100.00</span>
+          <span id="distance-counter" style="font-weight:700;">100.00</span>
         </div>
         <div class="progress-bar">
           <div id="progress-bar-fill"></div>
@@ -41,7 +41,9 @@
     </div>
 
     <!-- ── Main Game Area ── -->
-    <main id="game-area"></main>
+    <main id="game-area">
+      <canvas id="engine-bg" aria-hidden="true"></canvas>
+    </main>
 
     <!-- ── Sidebar ── -->
     <aside id="sidebar">
