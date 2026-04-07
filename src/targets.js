@@ -55,11 +55,12 @@ export function spawnTarget() {
 
     playClickSound();
 
-    // Spawn floating reward at click position relative to game area
-    const rect = gameArea.getBoundingClientRect();
+    // Spawn floating reward centered on the target's CSS position
+    const tx = parseInt(target.style.left, 10);
+    const ty = parseInt(target.style.top, 10);
     showFloatingReward(
-      parseInt(target.style.left, 10),
-      parseInt(target.style.top, 10),
+      Number.isFinite(tx) ? tx : parseInt(target.style.left, 10) || 0,
+      Number.isFinite(ty) ? ty : parseInt(target.style.top, 10) || 0,
       `+${result.earned} 🧠`
     );
 

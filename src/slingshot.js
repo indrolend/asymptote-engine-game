@@ -110,7 +110,7 @@ export function initSlingshot(element, callbacks = {}) {
         removeWindowListeners();
         element.style.touchAction = '';
         try {
-          if (e.pointerId != null) element.releasePointerCapture(e.pointerId);
+          if (e.pointerId !== null) element.releasePointerCapture(e.pointerId);
         } catch (_err) { /* ignore */ }
         return;
       }
