@@ -4,6 +4,7 @@ import { gameState, getEffectiveFactDuration } from './game-state.js';
 import { playUpgradeSound, playErrorSound, playSubstanceSound, playWearOffSound, playFactSound, playFactDismissSound } from './audio.js';
 import { updateUI, showActiveEffect, removeActiveEffect, applyWeedVisual, clearWeedVisual, applyAdderallVisual, clearAdderallVisual, applyAlcoholVisual, clearAlcoholVisual } from './ui.js';
 import { restartSpawning } from './targets.js';
+import { addActivationHandler } from './utils.js';
 
 // ─── Regular Upgrades ────────────────────────────────────────────────────────
 
@@ -381,8 +382,9 @@ function showFactPopup(fact, duration, onClose) {
     }
   }, 1000);
 
-  document.getElementById('fact-close-btn').addEventListener('click', () => {
-    if (document.getElementById('fact-close-btn').disabled) return;
+  const closeBtn = document.getElementById('fact-close-btn');
+  addActivationHandler(closeBtn, () => {
+    if (closeBtn.disabled) return;
     clearInterval(interval);
     overlay.remove();
     onClose();

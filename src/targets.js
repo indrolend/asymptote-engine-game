@@ -3,6 +3,7 @@
 import { gameState, applyClick } from './game-state.js';
 import { playClickSound, playExpireSound } from './audio.js';
 import { updateUI } from './ui.js';
+import { addActivationHandler } from './utils.js';
 
 let spawnTimer = null;
 
@@ -45,7 +46,7 @@ export function spawnTarget() {
 
   let clicked = false;
 
-  target.addEventListener('click', (e) => {
+  addActivationHandler(target, () => {
     if (clicked || gameState.factActive) return;
     clicked = true;
 
@@ -57,8 +58,8 @@ export function spawnTarget() {
     // Spawn floating reward at click position relative to game area
     const rect = gameArea.getBoundingClientRect();
     showFloatingReward(
-      e.clientX - rect.left,
-      e.clientY - rect.top,
+      parseInt(target.style.left, 10),
+      parseInt(target.style.top, 10),
       `+${result.earned} 🧠`
     );
 

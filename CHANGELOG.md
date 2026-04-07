@@ -7,6 +7,36 @@ All notable changes to **asymptote-engine-game** are documented here.
 ## [Unreleased]
 
 ### Added
+- **`src/utils.js`** — Shared interaction utilities ported from `basic-browser-spa`:
+  - `addActivationHandler(element, handler)` — fast-tap helper that fires on
+    `touchend` (no 300 ms synthetic-click delay on mobile) with an `onclick`
+    fallback for mouse/keyboard. Respects the `disabled` attribute on form
+    elements.
+  - `debounce(fn, wait)` — standard debounce utility.
+- **`src/slingshot.js`** — Pure ES module port of `js/spa/slingshotGesture.js`
+  from `basic-browser-spa`. Unified pointer-event pull/drag interaction
+  (`pointerdown → pointermove → pointerup`). No SPA dependencies; ready to
+  wire into any element. API: `initSlingshot(element, callbacks) → { destroy }`.
+- **`src/particle-transition.js`** — Pure ES module port of
+  `js/spa/particleTransitionEngine.js` from `basic-browser-spa`. Canvas-based
+  explode → reform particle transition engine.
+  Exports `transition(fromCanvas, toCanvas, options, onComplete)` and
+  `transitionFromPull(pulledParticles, toRegion, ctx, options, onComplete)`.
+
+### Changed
+- **`src/targets.js`** — Target tap handler now uses `addActivationHandler`
+  instead of a raw `click` listener, eliminating the 300 ms touch delay on
+  mobile devices. The floating reward position now uses the target's CSS
+  coordinates rather than the pointer event position (consistent across both
+  touch and mouse).
+- **`src/ui.js`** — Upgrade and consumable button creation now uses
+  `addActivationHandler` for all interactive buttons (upgrade, consumable,
+  unstable chaos), improving mobile tap responsiveness.
+- **`src/upgrades.js`** — Fact popup close button now uses
+  `addActivationHandler`, giving immediate response on mobile while still
+  respecting the `disabled` state during the countdown.
+
+### Added (previous session)
 - **Design system CSS migration from `indrolend/basic-browser-spa`**
   - Created `src/styles/style.css` as the new canonical stylesheet, replacing
     the previous `src/styles/animations.css`.
