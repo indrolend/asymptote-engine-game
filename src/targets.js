@@ -59,8 +59,8 @@ export function spawnTarget() {
     const tx = parseInt(target.style.left, 10);
     const ty = parseInt(target.style.top, 10);
     showFloatingReward(
-      Number.isFinite(tx) ? tx : parseInt(target.style.left, 10) || 0,
-      Number.isFinite(ty) ? ty : parseInt(target.style.top, 10) || 0,
+      Number.isFinite(tx) ? tx : 0,
+      Number.isFinite(ty) ? ty : 0,
       `+${result.earned} 🧠`
     );
 
