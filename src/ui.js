@@ -3,6 +3,7 @@
 import { gameState } from './game-state.js';
 import { upgrades, getUpgradeLevel, weedItem, adderallItem, alcoholItem, randomFactItem, alcoholUpgrade } from './upgrades.js';
 import { buyUpgrade, buyWeed, buyAdderall, buyAlcohol, buyRandomFact, buyUnstableChaos } from './upgrades.js';
+import { addActivationHandler } from './utils.js';
 
 // ─── Main UI Update ───────────────────────────────────────────────────────────
 
@@ -139,7 +140,7 @@ function renderUpgradeButtons() {
       btn = document.createElement('button');
       btn.id = `upgrade-btn-${upgrade.id}`;
       btn.className = 'upgrade-btn';
-      btn.addEventListener('click', () => buyUpgrade(upgrade.id));
+      addActivationHandler(btn, () => buyUpgrade(upgrade.id));
       container.appendChild(btn);
     }
 
@@ -180,7 +181,7 @@ function renderConsumables() {
     chaosBtn = document.createElement('button');
     chaosBtn.id = 'consumable-btn-unstable_chaos';
     chaosBtn.className = 'upgrade-btn alcohol-only';
-    chaosBtn.addEventListener('click', buyUnstableChaos);
+    addActivationHandler(chaosBtn, buyUnstableChaos);
     container.appendChild(chaosBtn);
   }
   const chaosCost = alcoholUpgrade.getCost();
@@ -203,7 +204,7 @@ function renderConsumable(id, item, buyFn, isActive, suffix = '') {
     btn = document.createElement('button');
     btn.id = `consumable-btn-${id}`;
     btn.className = 'upgrade-btn consumable-btn';
-    btn.addEventListener('click', buyFn);
+    addActivationHandler(btn, buyFn);
     container.appendChild(btn);
   }
 
