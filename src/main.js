@@ -9,7 +9,7 @@ import { startSpawning } from './targets.js';
 // particles behind the game targets — mirroring the visual signature of the
 // precursor SPA design.
 
-const _ANIM_AR  = [94, 232, 125]; // accent green #5ee87d
+const _ANIM_AR  = [108, 99, 255]; // accent purple #6c63ff
 const _DOT_N    = 22;
 const _DOT_R    = 3.5;
 const _GLOW_R   = 9;

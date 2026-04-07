@@ -6,37 +6,39 @@ All notable changes to **asymptote-engine-game** are documented here.
 
 ## [Unreleased]
 
-### Added
-- **`src/utils.js`** — Shared interaction utilities ported from `basic-browser-spa`:
-  - `addActivationHandler(element, handler)` — fast-tap helper that fires on
-    `touchend` (no 300 ms synthetic-click delay on mobile) with an `onclick`
-    fallback for mouse/keyboard. Respects the `disabled` attribute on form
-    elements.
-  - `debounce(fn, wait)` — standard debounce utility.
-- **`src/slingshot.js`** — Pure ES module port of `js/spa/slingshotGesture.js`
-  from `basic-browser-spa`. Unified pointer-event pull/drag interaction
-  (`pointerdown → pointermove → pointerup`). No SPA dependencies; ready to
-  wire into any element. API: `initSlingshot(element, callbacks) → { destroy }`.
-- **`src/particle-transition.js`** — Pure ES module port of
-  `js/spa/particleTransitionEngine.js` from `basic-browser-spa`. Canvas-based
-  explode → reform particle transition engine.
-  Exports `transition(fromCanvas, toCanvas, options, onComplete)` and
-  `transitionFromPull(pulledParticles, toRegion, ctx, options, onComplete)`.
-
-### Changed
-- **`src/targets.js`** — Target tap handler now uses `addActivationHandler`
-  instead of a raw `click` listener, eliminating the 300 ms touch delay on
-  mobile devices. The floating reward position now uses the target's CSS
-  coordinates rather than the pointer event position (consistent across both
-  touch and mouse).
-- **`src/ui.js`** — Upgrade and consumable button creation now uses
-  `addActivationHandler` for all interactive buttons (upgrade, consumable,
-  unstable chaos), improving mobile tap responsiveness.
-- **`src/upgrades.js`** — Fact popup close button now uses
-  `addActivationHandler`, giving immediate response on mobile while still
-  respecting the `disabled` state during the countdown.
+### Changed (this session — restore first-version aesthetic)
+- **`src/styles/style.css`** — Restored the first-version purple/indigo colour palette
+  (`--color-accent: #6c63ff`, `--color-bg: #0d0d1a`, `--color-surface: #161628`, etc.)
+  while retaining the new-version SPA design system additions and mobile improvements.
+  - Typography reverted to `'Segoe UI', system-ui, sans-serif` (main) and
+    `'Courier New', monospace` (mono) — matching the MVP.
+  - `.stat-chip` restored to pill shape (`border-radius: 20px`) with larger fonts and
+    monospace values, as in the MVP.
+  - `#header` padding/gap/font-size restored to MVP proportions.
+  - Progress bar height restored to 8 px.
+  - `#game-area` background restored to subtle purple radial glow.
+  - `#game-area::before` purple CSS grid overlay restored (40 px grid, accent lines at
+    5 % opacity).
+  - `.target` restored to purple gradient (`#8b85ff → #6c63ff`) with matching glow.
+  - Upgrade button cost restored to gold (`var(--color-reward)`) with lime when
+    affordable (`#a3e635`), hover/active backgrounds updated to purple tint.
+  - Fact modal restored to 2 px border, 32 px padding, and purple glow.
+  - All hardcoded greens in the SPA design system section updated to purple equivalents
+    (`.engine-hero`, `.core-dot`, `.hero-action`, `.hero--dim .core-dot`).
+- **`src/main.js`** — Engine background canvas dot colour updated from green
+  (`[94, 232, 125]`) to purple (`[108, 99, 255]`) to match the restored palette.
 
 ### Added (previous session)
+- **`src/utils.js`** — `addActivationHandler` (fast-tap, no 300ms delay) + `debounce`
+- **`src/slingshot.js`** — pure ES module port of `slingshotGesture.js`
+- **`src/particle-transition.js`** — pure ES module port of `particleTransitionEngine.js`
+
+### Changed (previous session)
+- **`src/targets.js`** — Target tap handler now uses `addActivationHandler`
+- **`src/ui.js`** — Upgrade and consumable buttons use `addActivationHandler`
+- **`src/upgrades.js`** — Fact popup close button uses `addActivationHandler`
+
+### Added (earlier session)
 - **Design system CSS migration from `indrolend/basic-browser-spa`**
   - Created `src/styles/style.css` as the new canonical stylesheet, replacing
     the previous `src/styles/animations.css`.
